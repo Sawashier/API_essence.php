@@ -44,3 +44,5 @@ isset($_REQUEST['cp']) && !empty($_REQUEST['cp']) && isset($_REQUEST['type']) &&
 
 if (file_exists($fileXml)) {
         if (time() - filemtime($fileXml) > (3600 * 24)) 
+
+bool usort ( array &$array , callable $value_compare_func )
