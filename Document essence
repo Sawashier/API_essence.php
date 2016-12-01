@@ -1,0 +1,46 @@
+
+
+http://www.prix-carburants.gouv.fr/rubrique/opendata/
+
+xemple : http://donnees.roulez-eco.fr/opendata/jour/20140801 contient le flux de données du 01/08/2014
+
+aujourdui :
+
+http://donnees.roulez-eco.fr/opendata/jour/20161123
+
+PrixCarburants_quotidien_20161121.zip
+
+$today = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
+$tomorrow  = mktime(0, 0, 0, date("m")  , date("d")+1, date("Y"));
+
+
+foreach (glob($dir . '/*.xml') as $fichier) {
+    if (basename($fichier, '.xml') == $motRecherche) {
+        $match = $fichier;
+    }
+}
+
+
+//echo $personne->nom.'<br>';	
+
+
+if ($_REQUEST['type'] == $prix->attributes()->nom){
+            echo $prix->attributes()->nom ."<br>";
+        }
+
+http://localhost:8080/API_essence.php/API_fuel_gouv.php?cp=83690&type=SP95
+
+echo json_encode(array("results" => array(), "status" => "ERROR_PARAM", "error_message" => "parametre invalide"), JSON_PRETTY_PRINT);
+
+
+Gazole, SP95, SP98, GPLc, E10, E85
+
+
+isset($_REQUEST['cp']) && !empty($_REQUEST['cp']) && isset($_REQUEST['type']) && !empty($_REQUEST['type'])
+/* && isset($_REQUEST['sort']) && !empty($_REQUEST['sort']) */
+
+
+ inet 192.168.1.150/24
+
+if (file_exists($fileXml)) {
+        if (time() - filemtime($fileXml) > (3600 * 24)) 
