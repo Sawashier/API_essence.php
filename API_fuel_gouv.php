@@ -7,7 +7,7 @@
  *  (facultatif, défaut asc si non précisé, du moins cher au plus cher).
  */
 $today = time();
-$todayMoins7 = date("Ymd",$today - (3600 * 24 * 8));
+$todayMoins7 = date("Ymd", $today - (3600 * 24 * 8));
 
 $fileZip = 'cache_zip.zip/PrixCarburants_quotidien_' . $todayMoins7 . '.zip';
 $fileXml = 'cache_xml.xml/PrixCarburants_quotidien_' . $todayMoins7 . '.xml';
@@ -15,57 +15,65 @@ $fileXml = 'cache_xml.xml/PrixCarburants_quotidien_' . $todayMoins7 . '.xml';
 API_fuel_file($today, $todayMoins7, $fileXml, $fileZip);
 
 
-if (!isset($_REQUEST['cp']) 
-        || empty($_REQUEST['cp'])
-        || intval($_REQUEST['cp'])<=0) {
-    
-    echo json_encode(array("results" => array(), "status" => "ERROR_PARAM", "error_message" => "Code postal invalide"), JSON_PRETTY_PRINT);
+if (!isset($_REQUEST['cp']) || empty($_REQUEST['cp']) || intval($_REQUEST['cp']) <= 0) {
+
+    echo json_encode(array("results" => array(), "status" => "ERROR_PARAM",
+        "error_message" => "Code postal invalide"), JSON_PRETTY_PRINT);
     exit(0);
 }
 
-if (!isset($_REQUEST['type'])
-        || empty($_REQUEST['type']) ){
-    
-    echo json_encode(array("results" => array(), "status" => "ERROR_PARAM", "error_message" => "Champ Carburant invalide"), JSON_PRETTY_PRINT);
+if (!isset($_REQUEST['type']) || empty($_REQUEST['type'])) {
+
+    echo json_encode(array("results" => array(), "status" => "ERROR_PARAM",
+        "error_message" => "Champ Carburant invalide"), JSON_PRETTY_PRINT);
     exit(0);
 }
 
-if ($_REQUEST['type'] == "Gazole" 
-        || $_REQUEST['type'] == "SP95" 
-        || $_REQUEST['type'] == "SP98" 
-        || $_REQUEST['type'] == "GPLc" 
-        || $_REQUEST['type'] == "E10" 
-        || $_REQUEST['type'] == "E85") {
+if ($_REQUEST['type'] == "Gazole" ||
+        $_REQUEST['type'] == "SP95" ||
+        $_REQUEST['type'] == "SP98" || $_REQUEST['type'] == "GPLc" ||
+        $_REQUEST['type'] == "E10" || $_REQUEST['type'] == "E85") {
 
     if (file_exists($fileXml)) {
         $xml = simplexml_load_file($fileXml);
-
+        $result = array();
         foreach ($xml as $pdv) {
             if (intval($_REQUEST['cp']) == intval($pdv->attributes()->cp)) {
-                echo $pdv->ville . "<br>" . $pdv->adresse . "<br>";
+                $data = $pdv->ville . " " . $pdv->adresse;
                 foreach ($pdv->prix as $info) {
                     if ($_REQUEST['type'] == $info->attributes()->nom) {
-                        echo $info->attributes()->nom . " " . $info->attributes()->valeur / 1000 . " " . '€' . "<br>" . "<br>";
+                        $data1 = $info->attributes()->nom . " " . $info->attributes()->valeur / 1000 . " " . '€';
+
+                        $result[] = array("addr" => $data, "price" => $info->attributes()->valeur / 1000);
                     }
                 }
             }
         }
-    } 
-} elseif ($_REQUEST['type'] !== "Gazole" 
-        || $_REQUEST['type'] !== "SP95" 
-        || $_REQUEST['type'] !== "SP98" 
-        || $_REQUEST['type'] !== "GPLc" 
-        || $_REQUEST['type'] !== "E10" 
-        || $_REQUEST['type'] !== "E85") {
-    
-    echo json_encode(array("results" => array(), "status" => "ERROR_PARAM", "error_message" => "Carburant invalide"), JSON_PRETTY_PRINT);
-    exit(0);
+        if ($_REQUEST['sort'] == "desc") {
+            usort($result, "comparePrixDesc");
+            $json = json_encode(array("status" => "ok", "results" => $result), JSON_PRETTY_PRINT);
+            echo $json;
+        } else {
+            usort($result, "comparePrixAsc");
+            $json = json_encode(array("status" => "ok", "results" => $result), JSON_PRETTY_PRINT);
+            echo $json;
+        }
+    }
+} elseif ($_REQUEST['type'] !== "Gazole" ||
+        $_REQUEST['type'] !== "SP95" ||
+        $_REQUEST['type'] !== "SP98" ||
+        $_REQUEST['type'] !== "GPLc" ||
+        $_REQUEST['type'] !== "E10" ||
+        $_REQUEST['type'] !== "E85") {
 
+    echo json_encode(array("results" => array(), "status" => "ERROR_PARAM",
+        "error_message" => "Carburant invalide"), JSON_PRETTY_PRINT);
+    exit(0);
 }
-    
+
 function API_fuel_file($today, $todayMoins7, $fileXml, $fileZip) {
 
-    
+
     if (file_exists($fileXml)) {
         if (time() - filemtime($fileXml) > (3600 * 24)) {
 
@@ -83,4 +91,30 @@ function API_fuel_file($today, $todayMoins7, $fileXml, $fileZip) {
             }
         }
     }
+}
+
+
+function comparePrixAsc($a, $b) {
+    if ($a["price"] == $b["price"]) {
+        return 0;
+    }
+
+    if ($a["price"] < $b["price"]) {  // +petit au+ grand
+        return -1;
+    }
+
+    return 1;
+}
+
+
+function comparePrixDesc($a, $b) {
+    if ($a["price"] == $b["price"]) {
+        return 0;
+    }
+
+    if ($a["price"] > $b["price"]) {  // +grand au + petit
+        return -1;
+    }
+
+    return 1;
 }
