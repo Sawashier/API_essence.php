@@ -28,11 +28,13 @@ if (!isset($_REQUEST['type']) || empty($_REQUEST['type'])) {
         "error_message" => "Champ Carburant invalide"), JSON_PRETTY_PRINT);
     exit(0);
 }
-
-if ($_REQUEST['type'] == "Gazole" ||
-        $_REQUEST['type'] == "SP95" ||
-        $_REQUEST['type'] == "SP98" || $_REQUEST['type'] == "GPLc" ||
-        $_REQUEST['type'] == "E10" || $_REQUEST['type'] == "E85") {
+//if (strcasecmp($var1, $var2) == 0) {  // STRCASECMP permet de comparer 2 chaine de caractère insensible a la casse
+if (strcasecmp($_REQUEST['type'], "Gazole") == 0   ||
+        strcasecmp($_REQUEST['type'], "SP95") == 0 ||
+        strcasecmp($_REQUEST['type'], "SP98") == 0 ||
+        strcasecmp($_REQUEST['type'], "GPLc") == 0 ||
+        strcasecmp($_REQUEST['type'], "E10") == 0  ||
+        strcasecmp($_REQUEST['type'], "E85") == 0) {
 
     if (file_exists($fileXml)) {
         $xml = simplexml_load_file($fileXml);
@@ -41,7 +43,7 @@ if ($_REQUEST['type'] == "Gazole" ||
             if (intval($_REQUEST['cp']) == intval($pdv->attributes()->cp)) {
                 $data = $pdv->ville . " " . $pdv->adresse;
                 foreach ($pdv->prix as $info) {
-                    if ($_REQUEST['type'] == $info->attributes()->nom) {
+                    if (strcasecmp($_REQUEST['type'], $info->attributes()->nom) == 0 ) {
                         $data1 = $info->attributes()->nom . " " . $info->attributes()->valeur / 1000 . " " . '€';
 
                         $result[] = array("addr" => $data, "price" => $info->attributes()->valeur / 1000);
@@ -49,7 +51,7 @@ if ($_REQUEST['type'] == "Gazole" ||
                 }
             }
         }
-        if ($_REQUEST['sort'] == "desc") {
+        if (strcasecmp($_REQUEST['sort'],"desc")==0) {
             usort($result, "comparePrixDesc");
             $json = json_encode(array("status" => "ok", "results" => $result), JSON_PRETTY_PRINT);
             echo $json;
@@ -59,12 +61,12 @@ if ($_REQUEST['type'] == "Gazole" ||
             echo $json;
         }
     }
-} elseif ($_REQUEST['type'] !== "Gazole" ||
-        $_REQUEST['type'] !== "SP95" ||
-        $_REQUEST['type'] !== "SP98" ||
-        $_REQUEST['type'] !== "GPLc" ||
-        $_REQUEST['type'] !== "E10" ||
-        $_REQUEST['type'] !== "E85") {
+} elseif (strcasecmp($_REQUEST['type'], "Gazole") !== 0   ||
+        strcasecmp($_REQUEST['type'], "SP95") !== 0 ||
+        strcasecmp($_REQUEST['type'], "SP98") !== 0 ||   
+        strcasecmp($_REQUEST['type'], "GPLc") !== 0 ||
+        strcasecmp($_REQUEST['type'], "E10") !== 0  ||
+        strcasecmp($_REQUEST['type'], "E85") !== 0) {
 
     echo json_encode(array("results" => array(), "status" => "ERROR_PARAM",
         "error_message" => "Carburant invalide"), JSON_PRETTY_PRINT);
@@ -74,7 +76,7 @@ if ($_REQUEST['type'] == "Gazole" ||
 function API_fuel_file($today, $todayMoins7, $fileXml, $fileZip) {
 
 
-    if (file_exists($fileXml)) {
+   // if (file_exists($fileXml)) {
         if (time() - filemtime($fileXml) > (3600 * 24)) {
 
             $url = "http://donnees.roulez-eco.fr/opendata/jour/" . $todayMoins7;
@@ -90,8 +92,7 @@ function API_fuel_file($today, $todayMoins7, $fileXml, $fileZip) {
                 $zip->close();
             }
         }
-    }
-}
+}    
 
 
 function comparePrixAsc($a, $b) {
@@ -105,7 +106,6 @@ function comparePrixAsc($a, $b) {
 
     return 1;
 }
-
 
 function comparePrixDesc($a, $b) {
     if ($a["price"] == $b["price"]) {
