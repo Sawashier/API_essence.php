@@ -1,5 +1,7 @@
 <?php
 
+header("Access-Control-Allow-Origin: *");
+
 /* url: /?cp=X&type=Y&sort=Z
   ->X: code postal (Obligatoire)
   ->Y: type de carburant, peut être un des suivant: gazole, sp95, sp98, gpl, e10, e85 (Obligatoire)

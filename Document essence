@@ -46,3 +46,12 @@ if (file_exists($fileXml)) {
         if (time() - filemtime($fileXml) > (3600 * 24)) 
 
 bool usort ( array &$array , callable $value_compare_func )
+_______________________________________________________________________________
+REQUETTE CORS
+-------------------------------------------------------------------------------
+
+var url = 'http://api.alice.com/cors';
+var xhr = createCORSRequest('PUT', url);
+xhr.setRequestHeader(
+    'X-Custom-Header', 'value');
+xhr.send();
