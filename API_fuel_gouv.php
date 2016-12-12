@@ -1,6 +1,7 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: *"); //----A rajouter pour que " function createCORSRequest" puisse
+//----effectuer une requette API sans etres admin du serveur
 
 /* url: /?cp=X&type=Y&sort=Z
   ->X: code postal (Obligatoire)
@@ -31,11 +32,11 @@ if (!isset($_REQUEST['type']) || empty($_REQUEST['type'])) {
     exit(0);
 }
 //if (strcasecmp($var1, $var2) == 0) {  // STRCASECMP permet de comparer 2 chaine de caractère insensible a la casse
-if (strcasecmp($_REQUEST['type'], "Gazole") == 0   ||
+if (strcasecmp($_REQUEST['type'], "Gazole") == 0 ||
         strcasecmp($_REQUEST['type'], "SP95") == 0 ||
         strcasecmp($_REQUEST['type'], "SP98") == 0 ||
         strcasecmp($_REQUEST['type'], "GPLc") == 0 ||
-        strcasecmp($_REQUEST['type'], "E10") == 0  ||
+        strcasecmp($_REQUEST['type'], "E10") == 0 ||
         strcasecmp($_REQUEST['type'], "E85") == 0) {
 
     if (file_exists($fileXml)) {
@@ -45,7 +46,7 @@ if (strcasecmp($_REQUEST['type'], "Gazole") == 0   ||
             if (intval($_REQUEST['cp']) == intval($pdv->attributes()->cp)) {
                 $data = $pdv->ville . " " . $pdv->adresse;
                 foreach ($pdv->prix as $info) {
-                    if (strcasecmp($_REQUEST['type'], $info->attributes()->nom) == 0 ) {
+                    if (strcasecmp($_REQUEST['type'], $info->attributes()->nom) == 0) {
                         $data1 = $info->attributes()->nom . " " . $info->attributes()->valeur / 1000 . " " . '€';
 
                         $result[] = array("addr" => $data, "price" => $info->attributes()->valeur / 1000);
@@ -53,7 +54,7 @@ if (strcasecmp($_REQUEST['type'], "Gazole") == 0   ||
                 }
             }
         }
-        if (strcasecmp($_REQUEST['sort'],"desc")==0) {
+        if (strcasecmp($_REQUEST['sort'], "desc") == 0) {
             usort($result, "comparePrixDesc");
             $json = json_encode(array("status" => "ok", "results" => $result), JSON_PRETTY_PRINT);
             echo $json;
@@ -63,11 +64,11 @@ if (strcasecmp($_REQUEST['type'], "Gazole") == 0   ||
             echo $json;
         }
     }
-} elseif (strcasecmp($_REQUEST['type'], "Gazole") !== 0   ||
+} elseif (strcasecmp($_REQUEST['type'], "Gazole") !== 0 ||
         strcasecmp($_REQUEST['type'], "SP95") !== 0 ||
-        strcasecmp($_REQUEST['type'], "SP98") !== 0 ||   
+        strcasecmp($_REQUEST['type'], "SP98") !== 0 ||
         strcasecmp($_REQUEST['type'], "GPLc") !== 0 ||
-        strcasecmp($_REQUEST['type'], "E10") !== 0  ||
+        strcasecmp($_REQUEST['type'], "E10") !== 0 ||
         strcasecmp($_REQUEST['type'], "E85") !== 0) {
 
     echo json_encode(array("results" => array(), "status" => "ERROR_PARAM",
@@ -78,7 +79,7 @@ if (strcasecmp($_REQUEST['type'], "Gazole") == 0   ||
 function API_fuel_file($today, $todayMoins7, $fileXml, $fileZip) {
 
 
-   // if (file_exists($fileXml)) {
+    if (!file_exists($fileXml)) {
         if (time() - filemtime($fileXml) > (3600 * 24)) {
 
             $url = "http://donnees.roulez-eco.fr/opendata/jour/" . $todayMoins7;
@@ -94,7 +95,8 @@ function API_fuel_file($today, $todayMoins7, $fileXml, $fileZip) {
                 $zip->close();
             }
         }
-}    
+    }
+}
 
 
 function comparePrixAsc($a, $b) {
